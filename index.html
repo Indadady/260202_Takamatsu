@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>탱구네 다카마쓰 우동 투어 🍜 | 투어메이커</title>
+    
+    <!-- 1. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- 3. React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 4. Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 폰트: Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+    
+    <!-- 🚨 Google Analytics (GA4) - 투어메이커 통합 관리 -->
+    <!-- 고객에게는 보이지 않지만, 대표님은 GA4 대시보드에서 방문자를 분석할 수 있습니다. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JLH9GD9SVR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-JLH9GD9SVR');
+    </script>
+    <!-- // Google Analytics 끝 -->
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0fdf4; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- 메인 컴포넌트 ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('itinerary');
+            const [selectedDay, setSelectedDay] = useState(0);
+            const [checklistState, setChecklistState] = useState({});
+            const [memo, setMemo] = useState('');
+            
+            // 데이터 로드
+            useEffect(() => {
+                const savedCheck = localStorage.getItem('tm_takamatsu_check');
+                const savedMemo = localStorage.getItem('tm_takamatsu_memo');
+
+                if (savedCheck) setChecklistState(JSON.parse(savedCheck));
+                if (savedMemo) setMemo(savedMemo);
+            }, []);
+
+            // 핸들러
+            const toggleCheck = (item) => {
+                const newState = { ...checklistState, [item]: !checklistState[item] };
+                setChecklistState(newState);
+                localStorage.setItem('tm_takamatsu_check', JSON.stringify(newState));
+            };
+
+            const handleMemo = (e) => {
+                setMemo(e.target.value);
+                localStorage.setItem('tm_takamatsu_memo', e.target.value);
+            };
+
+            // 데이터 정의
+            const itineraryData = [
+                {
+                    day: "1일차", date: "2/2 (월)", title: "다카마쓰 도착 & 시내 적응",
+                    items: [
+                        { time: "08:45", title: "인천 출발 (에어서울)", desc: "RS741편 (예상), 비행시간 1시간 35분", icon: "fa-plane-departure" },
+                        { time: "10:30", title: "다카마쓰 공항 도착", desc: "입국 심사 후 리무진 버스 탑승 (효고마치행)", icon: "fa-bus" },
+                        { time: "12:00", title: "호텔 짐 보관", desc: "토요코인 효고마치 (체크인 전 짐 맡기기)", icon: "fa-suitcase" },
+                        { time: "점심", title: "사누키 멘교 효고마치", desc: "호텔 바로 앞! 정통 사누키 우동으로 시작", icon: "fa-bowl-food", highlight: true },
+                        { time: "오후", title: "유메타운 쇼핑", desc: "초대형 쇼핑몰 (마트, 유니클로 등)", icon: "fa-bag-shopping" },
+                        { time: "저녁", title: "스시로", desc: "유메타운 근처 회전초밥, 가족 식사로 딱!", icon: "fa-fish" },
+                        { time: "간식", title: "교토 고토가 과일샌드", desc: "신선한 과일이 꽉 찬 샌드위치 포장", icon: "fa-bread-slice" },
+                        { time: "쇼핑", title: "드럭스토어 탐방", desc: "다이코쿠/마츠모토 키요시 (휴족시간 필수)", icon: "fa-pills" }
+                    ]
+                },
+                {
+                    day: "2일차", date: "2/3 (화)", title: "고토히라 신사 & 레트로 감성",
+                    items: [
+                        { time: "이동", title: "다카마쓰 칫코역", desc: "고토덴 전철 탑승 (레트로한 노란 전철)", icon: "fa-train-subway" },
+                        { time: "오전", title: "고토히라궁 (785계단)", desc: "본궁까지 도전! 힘든 만큼 뷰가 예술", icon: "fa-torii-gate" },
+                        { time: "휴식", title: "카페 카미츠바키", desc: "시세이도 팔러 운영, 신사 내 우아한 카페", icon: "fa-mug-hot", highlight: true },
+                        { time: "오후", title: "가와라마치역 복귀", desc: "시내로 다시 이동", icon: "fa-train" },
+                        { time: "저녁", title: "양식당 아가페", desc: "나폴리탄, 함박스테이크 (웨이팅 주의)", icon: "fa-utensils", highlight: true },
+                        { time: "야간", title: "돈키호테 & 다이소", desc: "본격적인 기념품 쇼핑 타임", icon: "fa-cart-shopping" }
+                    ]
+                },
+                {
+                    day: "3일차", date: "2/4 (수)", title: "정원 산책 & 아케이드 정복",
+                    items: [
+                        { time: "오전", title: "리쓰린 공원", desc: "미슐랭 그린가이드 별 3개 정원, 뱃놀이 추천", icon: "fa-tree" },
+                        { time: "브런치", title: "코나스 커피", desc: "하와이안 팬케이크 맛집 (분위기 굿)", icon: "fa-coffee" },
+                        { time: "오후", title: "효고마치 아케이드", desc: "돔 천장 구경, 마루가메마치 쇼핑", icon: "fa-shop" },
+                        { time: "간식", title: "교자야 (만두)", desc: "바삭한 교자에 맥주 한 잔", icon: "fa-beer-mug-empty" },
+                        { time: "저녁", title: "호르몬 야마토", desc: "야끼니꾸 & 호르몬 구이로 마지막 밤", icon: "fa-fire-burner", highlight: true }
+                    ]
+                },
+                {
+                    day: "4일차", date: "2/5 (목)", title: "귀국",
+                    items: [
+                        { time: "오전", title: "체크아웃 & 공항 이동", desc: "리무진 버스 시간 엄수", icon: "fa-bus" },
+                        { time: "11:30", title: "다카마쓰 공항 출발", desc: "에어서울 (면세점에서 우동 구매)", icon: "fa-plane-up" },
+                        { time: "13:10", title: "인천 도착", desc: "여행 종료, 수고하셨습니다!", icon: "fa-house" }
+                    ]
+                }
+            ];
+
+            // 유튜브 큐레이션 링크 (실시간/풍경)
+            const liveLinks = [
+                { title: "다카마쓰항 라이브", url: "https://www.youtube.com/results?search_query=takamatsu+port+live+camera", desc: "현재 날씨와 바다 풍경 확인하기", icon: "fa-water" },
+                { title: "리쓰린 공원 풍경", url: "https://www.youtube.com/results?search_query=ritsurin+garden+4k", desc: "여행 전 미리보는 힐링 정원", icon: "fa-tree" },
+                { title: "사누키 우동 투어", url: "https://www.youtube.com/results?search_query=sanuki+udon+tour", desc: "현지 우동 맛집 영상 모아보기", icon: "fa-utensils" }
+            ];
+
+            return (
+                <div className="min-h-screen pb-20 max-w-md mx-auto bg-white shadow-2xl overflow-hidden relative">
+                    
+                    {/* Header */}
+                    <header className="bg-white/90 backdrop-blur-sm sticky top-0 z-50 border-b border-green-100 h-16 flex items-center justify-between px-4">
+                        <div className="flex items-center gap-2">
+                            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" alt="Tourmaker" className="h-8 w-auto" />
+                            <span className="font-bold text-green-800 tracking-tight text-sm">Smart Guide</span>
+                        </div>
+                        <button onClick={() => navigator.share({title: document.title, url: window.location.href})} className="text-gray-500 hover:text-green-600 transition">
+                            <i className="fa-solid fa-arrow-up-from-bracket text-lg"></i>
+                        </button>
+                    </header>
+
+                    {/* Hero Section */}
+                    <div className="relative h-56 bg-gray-200">
+                        {/* 대표님 요청 이미지로 교체 */}
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.CdyOvwXAl90bdSTcOuAafgHaFj?w=474&h=474&c=7&p=0" alt="Takamatsu" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6 text-white">
+                            <h1 className="text-3xl font-black mb-1 drop-shadow-md">탱구네 다카마쓰</h1>
+                            <p className="text-sm opacity-90 font-light flex items-center gap-1">
+                                <i className="fa-solid fa-utensils text-yellow-400"></i> 우동, 쇼핑, 그리고 힐링
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Navigation Tabs */}
+                    <div className="grid grid-cols-4 bg-white border-b border-gray-100 sticky top-16 z-40 shadow-sm">
+                        {['itinerary', 'hotel', 'check', 'live'].map(tab => (
+                            <button 
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`py-3 text-xs font-bold flex flex-col items-center gap-1 transition-colors ${activeTab === tab ? 'text-green-600 border-b-2 border-green-600 bg-green-50' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <i className={`fa-solid text-lg ${
+                                    tab === 'itinerary' ? 'fa-calendar-days' :
+                                    tab === 'hotel' ? 'fa-hotel' : 
+                                    tab === 'check' ? 'fa-list-check' : 'fa-video'
+                                }`}></i>
+                                {tab === 'itinerary' ? '일정' : tab === 'hotel' ? '숙소' : tab === 'check' ? '준비물' : '실시간'}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="bg-gray-50 min-h-[500px]">
+                        
+                        {/* 1. 일정 탭 */}
+                        {activeTab === 'itinerary' && (
+                            <div className="animate-slide-up p-4">
+                                {/* 날짜 선택기 */}
+                                <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
+                                    {itineraryData.map((data, idx) => (
+                                        <button 
+                                            key={idx} 
+                                            onClick={() => setSelectedDay(idx)}
+                                            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold border transition-all ${selectedDay === idx ? 'bg-green-600 text-white border-green-600 shadow-md' : 'bg-white text-gray-500 border-gray-200'}`}
+                                        >
+                                            {data.date.split(' ')[0]}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* 상세 타임라인 */}
+                                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                                    <h2 className="text-xl font-bold text-gray-800 mb-1">{itineraryData[selectedDay].day}</h2>
+                                    <p className="text-sm text-green-600 font-medium mb-6">{itineraryData[selectedDay].title}</p>
+                                    
+                                    <div className="space-y-6 relative pl-2 border-l-2 border-green-100 ml-2">
+                                        {itineraryData[selectedDay].items.map((item, i) => (
+                                            <div key={i} className="relative pl-6">
+                                                <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white shadow-sm ${item.highlight ? 'bg-orange-500' : 'bg-green-500'}`}></div>
+                                                <div className="flex items-start justify-between mb-1">
+                                                    <span className="font-bold text-gray-800 text-base">{item.title}</span>
+                                                    <span className="text-xs font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{item.time}</span>
+                                                </div>
+                                                <p className="text-sm text-gray-500 leading-snug">{item.desc}</p>
+                                                {item.highlight && <span className="inline-block mt-1 text-[10px] text-orange-600 font-bold bg-orange-50 px-2 py-0.5 rounded-full">★ 탱구픽 추천</span>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 2. 실시간 정보 탭 (고객용 정보 제공) */}
+                        {activeTab === 'live' && (
+                            <div className="animate-slide-up p-4 space-y-4">
+                                <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
+                                    <i className="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                                    <div>
+                                        <h3 className="font-bold text-blue-800 text-sm">실시간 현장 미리보기</h3>
+                                        <p className="text-xs text-blue-600 mt-1">유튜브 검색 결과를 통해 현재 날씨와 옷차림, 관광지 분위기를 생생하게 확인하세요.</p>
+                                    </div>
+                                </div>
+                                
+                                {/* 큐레이션 링크 */}
+                                <div className="grid grid-cols-1 gap-3">
+                                    {liveLinks.map((link, idx) => (
+                                        <a href={link.url} target="_blank" key={idx} className="block group">
+                                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4 hover:border-green-500 transition-colors">
+                                                <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
+                                                    <i className={`fa-solid ${link.icon}`}></i>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold text-gray-800 text-sm">{link.title}</h4>
+                                                    <p className="text-xs text-gray-500">{link.desc}</p>
+                                                </div>
+                                                <i className="fa-solid fa-arrow-up-right-from-square text-gray-300 text-xs"></i>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+
+                                <div className="mt-4">
+                                    <h3 className="font-bold text-gray-800 mb-2 px-1 text-sm">현지 예상 날씨</h3>
+                                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex justify-between items-center text-center">
+                                        <div className="flex-1 border-r border-gray-100">
+                                            <p className="text-xs text-gray-400">2/2 (월)</p>
+                                            <i className="fa-solid fa-sun text-orange-400 text-2xl my-2"></i>
+                                            <p className="font-bold text-sm">맑음</p>
+                                        </div>
+                                        <div className="flex-1 border-r border-gray-100">
+                                            <p className="text-xs text-gray-400">2/3 (화)</p>
+                                            <i className="fa-solid fa-cloud-sun text-yellow-400 text-2xl my-2"></i>
+                                            <p className="font-bold text-sm">구름조금</p>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-xs text-gray-400">2/4 (수)</p>
+                                            <i className="fa-solid fa-cloud text-gray-400 text-2xl my-2"></i>
+                                            <p className="font-bold text-sm">흐림</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 3. 호텔 탭 */}
+                        {activeTab === 'hotel' && (
+                            <div className="animate-slide-up p-4">
+                                <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                                    {/* 대표님 요청 이미지로 교체 */}
+                                    <img src="https://images.trvl-media.com/lodging/18000000/17380000/17371800/17371785/79729782.jpg?impolicy=resizecrop&ra=fit&rw=1200" alt="Toyoko Inn" className="w-full h-48 object-cover" />
+                                    <div className="p-5">
+                                        <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded">3박 숙박</span>
+                                        <h2 className="text-xl font-bold text-gray-800 mt-2">토요코인 다카마쓰 효고마치</h2>
+                                        <p className="text-sm text-gray-500 mt-1"><i className="fa-solid fa-location-dot text-red-500 mr-1"></i>효고마치 아케이드 내 위치</p>
+                                        
+                                        <div className="mt-4 grid grid-cols-2 gap-2 text-center">
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <i className="fa-solid fa-utensils text-green-600 mb-1"></i>
+                                                <p className="text-xs font-bold text-gray-700">무료 조식</p>
+                                                <p className="text-[10px] text-gray-400">06:30 ~ 09:00</p>
+                                            </div>
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <i className="fa-solid fa-wifi text-green-600 mb-1"></i>
+                                                <p className="text-xs font-bold text-gray-700">와이파이</p>
+                                                <p className="text-[10px] text-gray-400">로비/객실 무료</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-6 space-y-3">
+                                            <a href="https://www.google.com/maps/search/?api=1&query=Toyoko+Inn+Takamatsu+Hyogomachi" target="_blank" className="block w-full py-3 bg-blue-50 text-blue-600 font-bold text-center rounded-xl hover:bg-blue-100 transition">
+                                                <i className="fa-solid fa-map"></i> 구글 지도 보기
+                                            </a>
+                                            <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg leading-relaxed">
+                                                <b>💡 투어메이커 Tip:</b><br/>
+                                                호텔이 아케이드 안에 있어서 비가 와도 우산 없이 편의점, 식당 이동이 가능합니다. 다이코쿠 드럭스토어가 도보 1분 거리입니다!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. 준비물 탭 */}
+                        {activeTab === 'check' && (
+                            <div className="animate-slide-up p-4">
+                                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6">
+                                    <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                        <i className="fa-solid fa-check-double text-green-600"></i> 필수 준비물
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {['여권 (유효기간 확인)', '에어서울 E-티켓', '호텔 바우처 (토요코인)', '110V 돼지코 어댑터', '동전 지갑 (엔화)', '유심/이심', '상비약'].map(item => (
+                                            <div key={item} onClick={() => toggleCheck(item)} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition">
+                                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${checklistState[item] ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
+                                                    {checklistState[item] && <i className="fa-solid fa-check text-xs"></i>}
+                                                </div>
+                                                <span className={`text-sm ${checklistState[item] ? 'text-gray-400 line-through' : 'text-gray-700'}`}>{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-yellow-50 rounded-2xl p-5 shadow-sm border border-yellow-100">
+                                    <h3 className="font-bold text-yellow-800 mb-2">📝 나만의 메모장</h3>
+                                    <textarea 
+                                        value={memo} 
+                                        onChange={handleMemo} 
+                                        className="w-full h-32 bg-white border border-yellow-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                        placeholder="쇼핑 리스트나 중요 정보를 적어두세요. (자동 저장됨)"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+
+                    {/* Footer */}
+                    <footer className="text-center py-8 text-gray-400 text-xs bg-gray-50 border-t border-gray-100">
+                        <p>© 2026 Tourmaker Taenggu</p>
+                        <p className="mt-1">Enjoy Your Smart Trip!</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
