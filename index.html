@@ -53,6 +53,7 @@
             const [selectedDay, setSelectedDay] = useState(0);
             const [checklistState, setChecklistState] = useState({});
             const [memo, setMemo] = useState('');
+            const [isPlaying, setIsPlaying] = useState(false); // 비디오 재생 상태 관리
             
             // 데이터 로드
             useEffect(() => {
@@ -62,6 +63,11 @@
                 if (savedCheck) setChecklistState(JSON.parse(savedCheck));
                 if (savedMemo) setMemo(savedMemo);
             }, []);
+
+            // 탭 변경 시 비디오 정지 (UX 최적화)
+            useEffect(() => {
+                setIsPlaying(false);
+            }, [activeTab]);
 
             // 핸들러
             const toggleCheck = (item) => {
@@ -121,13 +127,6 @@
                 }
             ];
 
-            // 유튜브 큐레이션 링크 (실시간/풍경)
-            const liveLinks = [
-                { title: "다카마쓰항 라이브", url: "https://www.youtube.com/results?search_query=takamatsu+port+live+camera", desc: "현재 날씨와 바다 풍경 확인하기", icon: "fa-water" },
-                { title: "리쓰린 공원 풍경", url: "https://www.youtube.com/results?search_query=ritsurin+garden+4k", desc: "여행 전 미리보는 힐링 정원", icon: "fa-tree" },
-                { title: "사누키 우동 투어", url: "https://www.youtube.com/results?search_query=sanuki+udon+tour", desc: "현지 우동 맛집 영상 모아보기", icon: "fa-utensils" }
-            ];
-
             return (
                 <div className="min-h-screen pb-20 max-w-md mx-auto bg-white shadow-2xl overflow-hidden relative">
                     
@@ -165,9 +164,9 @@
                                 <i className={`fa-solid text-lg ${
                                     tab === 'itinerary' ? 'fa-calendar-days' :
                                     tab === 'hotel' ? 'fa-hotel' : 
-                                    tab === 'check' ? 'fa-list-check' : 'fa-video'
+                                    tab === 'check' ? 'fa-list-check' : 'fa-youtube'
                                 }`}></i>
-                                {tab === 'itinerary' ? '일정' : tab === 'hotel' ? '숙소' : tab === 'check' ? '준비물' : '실시간'}
+                                {tab === 'itinerary' ? '일정' : tab === 'hotel' ? '숙소' : tab === 'check' ? '준비물' : '프리뷰'}
                             </button>
                         ))}
                     </div>
@@ -213,53 +212,83 @@
                             </div>
                         )}
 
-                        {/* 2. 실시간 정보 탭 (고객용 정보 제공) */}
+                        {/* 2. 프리뷰 (홍보영상 + 썸네일) 탭 */}
                         {activeTab === 'live' && (
                             <div className="animate-slide-up p-4 space-y-4">
                                 <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
-                                    <i className="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                                    <i className="fa-solid fa-circle-play text-blue-500 mt-1"></i>
                                     <div>
-                                        <h3 className="font-bold text-blue-800 text-sm">실시간 현장 미리보기</h3>
-                                        <p className="text-xs text-blue-600 mt-1">유튜브 검색 결과를 통해 현재 날씨와 옷차림, 관광지 분위기를 생생하게 확인하세요.</p>
+                                        <h3 className="font-bold text-blue-800 text-sm">여행 미리보기</h3>
+                                        <p className="text-xs text-blue-600 mt-1">다카마쓰와 카가와현의 아름다운 풍경을 확인하세요.</p>
                                     </div>
                                 </div>
                                 
-                                {/* 큐레이션 링크 */}
-                                <div className="grid grid-cols-1 gap-3">
-                                    {liveLinks.map((link, idx) => (
-                                        <a href={link.url} target="_blank" key={idx} className="block group">
-                                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4 hover:border-green-500 transition-colors">
-                                                <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
-                                                    <i className={`fa-solid ${link.icon}`}></i>
+                                {/* 메인 홍보 영상 (썸네일 커버 적용) */}
+                                <div className="w-full bg-black rounded-xl overflow-hidden shadow-lg border border-gray-200 aspect-video relative group">
+                                    {!isPlaying ? (
+                                        <button 
+                                            onClick={() => setIsPlaying(true)} 
+                                            className="absolute inset-0 w-full h-full relative cursor-pointer group"
+                                        >
+                                            {/* 고화질 썸네일 */}
+                                            <img 
+                                                src="https://img.youtube.com/vi/J_CFj1gI5jE/maxresdefault.jpg" 
+                                                alt="Video Thumbnail" 
+                                                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-500" 
+                                            />
+                                            {/* 재생 버튼 오버레이 */}
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="w-16 h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition duration-300 border border-white/50 shadow-2xl">
+                                                    <i className="fa-solid fa-play text-white text-3xl ml-1"></i>
                                                 </div>
-                                                <div className="flex-1">
-                                                    <h4 className="font-bold text-gray-800 text-sm">{link.title}</h4>
-                                                    <p className="text-xs text-gray-500">{link.desc}</p>
-                                                </div>
-                                                <i className="fa-solid fa-arrow-up-right-from-square text-gray-300 text-xs"></i>
                                             </div>
-                                        </a>
-                                    ))}
+                                            {/* 텍스트 정보 */}
+                                            <div className="absolute bottom-4 left-4 text-white text-left z-10">
+                                                <span className="bg-red-600 text-[10px] font-bold px-2 py-1 rounded mb-1 inline-block shadow-sm">YouTube</span>
+                                                <h3 className="font-bold text-lg drop-shadow-md">다카마쓰 여행 공식 가이드</h3>
+                                            </div>
+                                            {/* 그라데이션 오버레이 */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                                        </button>
+                                    ) : (
+                                        <iframe 
+                                            className="absolute inset-0 w-full h-full"
+                                            src="https://www.youtube.com/embed/J_CFj1gI5jE?autoplay=1&mute=0&controls=1" 
+                                            title="Kagawa Promotion Video"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowFullScreen>
+                                        </iframe>
+                                    )}
                                 </div>
 
-                                <div className="mt-4">
-                                    <h3 className="font-bold text-gray-800 mb-2 px-1 text-sm">현지 예상 날씨</h3>
+                                {/* 날씨 정보 (유지) */}
+                                <div className="mt-6 pt-6 border-t border-gray-100">
+                                    <h3 className="font-bold text-gray-800 mb-2 px-1 text-sm flex items-center gap-2">
+                                        <i className="fa-solid fa-cloud-sun-rain text-green-600"></i> 현지 예상 날씨
+                                    </h3>
                                     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex justify-between items-center text-center">
                                         <div className="flex-1 border-r border-gray-100">
                                             <p className="text-xs text-gray-400">2/2 (월)</p>
                                             <i className="fa-solid fa-sun text-orange-400 text-2xl my-2"></i>
                                             <p className="font-bold text-sm">맑음</p>
+                                            <p className="text-[10px] text-gray-400">10° / 2°</p>
                                         </div>
                                         <div className="flex-1 border-r border-gray-100">
                                             <p className="text-xs text-gray-400">2/3 (화)</p>
                                             <i className="fa-solid fa-cloud-sun text-yellow-400 text-2xl my-2"></i>
                                             <p className="font-bold text-sm">구름조금</p>
+                                            <p className="text-[10px] text-gray-400">11° / 3°</p>
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-xs text-gray-400">2/4 (수)</p>
                                             <i className="fa-solid fa-cloud text-gray-400 text-2xl my-2"></i>
                                             <p className="font-bold text-sm">흐림</p>
+                                            <p className="text-[10px] text-gray-400">9° / 1°</p>
                                         </div>
+                                    </div>
+                                    <div className="text-[10px] text-gray-400 text-center mt-2">
+                                        * 기온은 평년 데이터 기준 예상치입니다.
                                     </div>
                                 </div>
                             </div>
