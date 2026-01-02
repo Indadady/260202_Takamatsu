@@ -22,7 +22,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
     
     <!-- 🚨 Google Analytics (GA4) - 투어메이커 통합 관리 -->
-    <!-- 고객에게는 보이지 않지만, 대표님은 GA4 대시보드에서 방문자를 분석할 수 있습니다. -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JLH9GD9SVR"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -143,7 +142,7 @@
 
                     {/* Hero Section */}
                     <div className="relative h-56 bg-gray-200">
-                        {/* 대표님 요청 이미지로 교체 */}
+                        {/* 대표님 요청 이미지 */}
                         <img src="https://tse1.mm.bing.net/th/id/OIP.CdyOvwXAl90bdSTcOuAafgHaFj?w=474&h=474&c=7&p=0" alt="Takamatsu" className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6 text-white">
                             <h1 className="text-3xl font-black mb-1 drop-shadow-md">탱구네 다카마쓰</h1>
@@ -232,7 +231,8 @@
                                         >
                                             {/* 고화질 썸네일 */}
                                             <img 
-                                                src="https://img.youtube.com/vi/J_CFj1gI5jE/maxresdefault.jpg" 
+                                                src="https://img.youtube.com/vi/y_uSDwezsHE/maxresdefault.jpg" 
+                                                onError={(e) => { e.target.src = "https://img.youtube.com/vi/y_uSDwezsHE/hqdefault.jpg"; }}
                                                 alt="Video Thumbnail" 
                                                 className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-500" 
                                             />
@@ -253,7 +253,7 @@
                                     ) : (
                                         <iframe 
                                             className="absolute inset-0 w-full h-full"
-                                            src="https://www.youtube.com/embed/J_CFj1gI5jE?autoplay=1&mute=0&controls=1" 
+                                            src="https://www.youtube.com/embed/y_uSDwezsHE?autoplay=1&mute=0&controls=1" 
                                             title="Kagawa Promotion Video"
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -298,7 +298,7 @@
                         {activeTab === 'hotel' && (
                             <div className="animate-slide-up p-4">
                                 <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                                    {/* 대표님 요청 이미지로 교체 */}
+                                    {/* 대표님 요청 이미지 */}
                                     <img src="https://images.trvl-media.com/lodging/18000000/17380000/17371800/17371785/79729782.jpg?impolicy=resizecrop&ra=fit&rw=1200" alt="Toyoko Inn" className="w-full h-48 object-cover" />
                                     <div className="p-5">
                                         <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded">3박 숙박</span>
