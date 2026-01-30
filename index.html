@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>탱구네 다카마쓰 우동 투어 🍜 | 투어메이커</title>
     
+    <!-- 🚨 Open Graph: 카톡 공유시 보여질 썸네일 및 정보 -->
+    <meta property="og:title" content="[투어메이커] 탱구네 다카마쓰 우동 투어 2/2 출발">
+    <meta property="og:description" content="D-Day 카운터 및 스마트 체크리스트가 포함된 여행 가이드북입니다.">
+    <!-- 메인 히어로 이미지와 동일한 이미지 사용 -->
+    <meta property="og:image" content="https://www.art-takamatsu.com/archives/006/202101/c1b4fafb5b8290c9f43a270ee514914a.jpg">
+    <meta property="og:url" content="https://tourmaker.kr">
+
     <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -38,6 +45,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
 <body>
@@ -52,7 +60,36 @@
             const [selectedDay, setSelectedDay] = useState(0);
             const [checklistState, setChecklistState] = useState({});
             const [memo, setMemo] = useState('');
-            const [isPlaying, setIsPlaying] = useState(false); // 비디오 재생 상태 관리
+            const [memoStatus, setMemoStatus] = useState('자동 저장 대기중...');
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [dDay, setDDay] = useState('');
+
+            // 메인 이미지 URL (카톡 썸네일과 동일) - 요청하신 이미지로 변경
+            const MAIN_IMAGE_URL = "https://www.art-takamatsu.com/archives/006/202101/c1b4fafb5b8290c9f43a270ee514914a.jpg";
+
+            // D-Day 계산 로직
+            useEffect(() => {
+                const calculateDDay = () => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // 시간 초기화
+                    const startDate = new Date('2026-02-02T00:00:00');
+                    const endDate = new Date('2026-02-05T23:59:59');
+
+                    const timeDiff = startDate.getTime() - today.getTime();
+                    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                    if (today > endDate) {
+                        setDDay("여행종료");
+                    } else if (today >= startDate && today <= endDate) {
+                        setDDay("여행중 ✈️");
+                    } else if (dayDiff === 0) {
+                        setDDay("D-Day");
+                    } else {
+                        setDDay(`D-${dayDiff}`);
+                    }
+                };
+                calculateDDay();
+            }, []);
             
             // 데이터 로드
             useEffect(() => {
@@ -60,7 +97,10 @@
                 const savedMemo = localStorage.getItem('tm_takamatsu_memo');
 
                 if (savedCheck) setChecklistState(JSON.parse(savedCheck));
-                if (savedMemo) setMemo(savedMemo);
+                if (savedMemo) {
+                    setMemo(savedMemo);
+                    setMemoStatus('불러오기 완료');
+                }
             }, []);
 
             // 탭 변경 시 비디오 정지 (UX 최적화)
@@ -76,8 +116,13 @@
             };
 
             const handleMemo = (e) => {
-                setMemo(e.target.value);
-                localStorage.setItem('tm_takamatsu_memo', e.target.value);
+                const text = e.target.value;
+                setMemo(text);
+                setMemoStatus('저장 중...');
+                
+                // 디바운싱 효과를 흉내내거나 즉시 저장
+                localStorage.setItem('tm_takamatsu_memo', text);
+                setTimeout(() => setMemoStatus('자동 저장됨 ✅'), 500);
             };
 
             // 데이터 정의
@@ -135,16 +180,31 @@
                             <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" alt="Tourmaker" className="h-8 w-auto" />
                             <span className="font-bold text-green-800 tracking-tight text-sm">Smart Guide</span>
                         </div>
-                        <button onClick={() => navigator.share({title: document.title, url: window.location.href})} className="text-gray-500 hover:text-green-600 transition">
+                        <button onClick={() => {
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: '탱구네 다카마쓰 우동 투어',
+                                    text: '다카마쓰 여행 가이드북을 확인하세요!',
+                                    url: window.location.href
+                                });
+                            } else {
+                                alert("링크를 복사해서 공유해주세요: " + window.location.href);
+                            }
+                        }} className="text-gray-500 hover:text-green-600 transition p-2">
                             <i className="fa-solid fa-arrow-up-from-bracket text-lg"></i>
                         </button>
                     </header>
 
-                    {/* Hero Section */}
-                    <div className="relative h-56 bg-gray-200">
-                        {/* 대표님 요청 이미지 */}
-                        <img src="https://tse1.mm.bing.net/th/id/OIP.CdyOvwXAl90bdSTcOuAafgHaFj?w=474&h=474&c=7&p=0" alt="Takamatsu" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6 text-white">
+                    {/* Hero Section with D-Day */}
+                    <div className="relative h-64 bg-gray-200">
+                        <img src={MAIN_IMAGE_URL} alt="Takamatsu" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 text-white">
+                            {/* D-Day Badge */}
+                            <div className="absolute top-4 right-4 bg-green-500/90 backdrop-blur text-white font-black px-4 py-2 rounded-full shadow-lg border-2 border-white/30 animate-pulse-slow">
+                                {dDay}
+                            </div>
+
+                            <span className="text-green-300 font-bold text-xs tracking-wider mb-1">2026.02.02 - 02.05 (3박 4일)</span>
                             <h1 className="text-3xl font-black mb-1 drop-shadow-md">탱구네 다카마쓰</h1>
                             <p className="text-sm opacity-90 font-light flex items-center gap-1">
                                 <i className="fa-solid fa-utensils text-yellow-400"></i> 우동, 쇼핑, 그리고 힐링
@@ -298,7 +358,6 @@
                         {activeTab === 'hotel' && (
                             <div className="animate-slide-up p-4">
                                 <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                                    {/* 대표님 요청 이미지 */}
                                     <img src="https://images.trvl-media.com/lodging/18000000/17380000/17371800/17371785/79729782.jpg?impolicy=resizecrop&ra=fit&rw=1200" alt="Toyoko Inn" className="w-full h-48 object-cover" />
                                     <div className="p-5">
                                         <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded">3박 숙박</span>
@@ -332,7 +391,7 @@
                             </div>
                         )}
 
-                        {/* 4. 준비물 탭 */}
+                        {/* 4. 준비물 탭 (메모장 강화) */}
                         {activeTab === 'check' && (
                             <div className="animate-slide-up p-4">
                                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6">
@@ -352,12 +411,15 @@
                                 </div>
 
                                 <div className="bg-yellow-50 rounded-2xl p-5 shadow-sm border border-yellow-100">
-                                    <h3 className="font-bold text-yellow-800 mb-2">📝 나만의 메모장</h3>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="font-bold text-yellow-800">📝 나만의 메모장</h3>
+                                        <span className="text-[10px] text-yellow-600 font-medium">{memoStatus}</span>
+                                    </div>
                                     <textarea 
                                         value={memo} 
                                         onChange={handleMemo} 
-                                        className="w-full h-32 bg-white border border-yellow-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                                        placeholder="쇼핑 리스트나 중요 정보를 적어두세요. (자동 저장됨)"
+                                        className="w-full h-40 bg-white border border-yellow-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none leading-relaxed"
+                                        placeholder="쇼핑 리스트, 맛집 정보, 여행 팁 등을 자유롭게 적어두세요. (자동 저장됩니다)"
                                     ></textarea>
                                 </div>
                             </div>
@@ -366,7 +428,12 @@
                     </div>
 
                     {/* Footer */}
-                    <footer className="text-center py-8 text-gray-400 text-xs bg-gray-50 border-t border-gray-100">
+                    <footer className="text-center py-10 text-gray-400 text-xs bg-gray-50 border-t border-gray-100">
+                        <div className="mb-6">
+                            <a href="https://tourmaker.kr" target="_blank" className="inline-block bg-white border border-green-200 text-green-700 font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-green-50 transition">
+                                <i className="fa-solid fa-globe mr-2"></i> 투어메이커 공식 홈페이지
+                            </a>
+                        </div>
                         <p>© 2026 Tourmaker Taenggu</p>
                         <p className="mt-1">Enjoy Your Smart Trip!</p>
                     </footer>
